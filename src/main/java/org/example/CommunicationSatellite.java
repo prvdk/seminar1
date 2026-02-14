@@ -38,8 +38,8 @@ public class CommunicationSatellite extends Satellite {
         return "CommunicationSatellite{" +
                 "bandwidth=" + bandwidth +
                 ", name='" + name + '\'' +
-                ", isActive=" + state.isActive() +
-                ", batteryLevel=" + energy.getBatteryLevel() +
+                ", state=" + state +
+                ", energy=" + energy +
                 '}';
     }
 }

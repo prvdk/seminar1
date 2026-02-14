@@ -28,4 +28,11 @@ public class EnergySystem {
         }
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "EnergySystem{" +
+                "batteryLevel=" + batteryLevel +
+                '}';
+    }
 }

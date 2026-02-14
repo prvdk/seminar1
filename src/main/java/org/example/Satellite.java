@@ -45,4 +45,8 @@ public abstract class Satellite {
     public double getBatteryLevel() {
         return energy.getBatteryLevel();
     }
+
+    public SatelliteState getState() {
+        return state;
+    }
 }

@@ -24,7 +24,19 @@ public class SatelliteConstellation {
         }
     }
 
+    public String getConstellationName() {
+        return constellationName;
+    }
+
     public List<Satellite> getSatellites() {
         return satellites;
+    }
+
+    @Override
+    public String toString() {
+        return "SatelliteConstellation{" +
+                "constellationName='" + constellationName + '\'' +
+                ", satellites=" + satellites +
+                '}';
     }
 }
