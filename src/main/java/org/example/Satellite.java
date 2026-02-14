@@ -2,49 +2,47 @@ package org.example;
 
 public abstract class Satellite {
 
+    private static final double MIN_ACTIVATION_BATTERY = 0.2;
+
     protected String name;
-    protected boolean isActive;
-    protected double batteryLevel; // 0.0..1.0
+    protected SatelliteState state;
+    protected EnergySystem energy;
 
     public Satellite(String name, double batteryLevel) {
         this.name = name;
-        this.batteryLevel = clamp01(batteryLevel);
-        this.isActive = false;
+        this.state = new SatelliteState();
+        this.energy = new EnergySystem(batteryLevel);
     }
 
     public boolean activate() {
-        // включается, если заряд > 0.2
-        if (batteryLevel > 0.2) {
-            isActive = true;
+        if (energy.getBatteryLevel() > MIN_ACTIVATION_BATTERY) {
+            state.activate();
             return true;
         }
         return false;
     }
 
     public void deactivate() {
-        // выключаем только если был включен
-        if (isActive) {
-            isActive = false;
-        }
-    }
-
-    public void consumeBattery(double amount) {
-        if (amount <= 0) {
-            return;
-        }
-
-        batteryLevel = clamp01(batteryLevel - amount);
-
-        if (batteryLevel <= 0.2) {
-            deactivate();
-        }
+        state.deactivate();
     }
 
     protected abstract void performMission();
 
-    private double clamp01(double v) {
-        if (v < 0.0) return 0.0;
-        if (v > 1.0) return 1.0;
-        return v;
+    protected void updateStateAfterEnergyConsumption() {
+        if (energy.getBatteryLevel() <= MIN_ACTIVATION_BATTERY) {
+            state.deactivate();
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public boolean isActive() {
+        return state.isActive();
+    }
+
+    public double getBatteryLevel() {
+        return energy.getBatteryLevel();
     }
 }

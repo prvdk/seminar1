@@ -17,11 +17,11 @@ public class Main {
         ImagingSatellite i2 = new ImagingSatellite("ДЗЗ-2", 0.45, 1.0);
         ImagingSatellite i3 = new ImagingSatellite("ДЗЗ-3", 0.15, 0.5);
 
-        System.out.println("Создан спутник: " + c1.name + " (заряд: 85%)");
-        System.out.println("Создан спутник: " + c2.name + " (заряд: 75%)");
-        System.out.println("Создан спутник: " + i1.name + " (заряд: 92%)");
-        System.out.println("Создан спутник: " + i2.name + " (заряд: 45%)");
-        System.out.println("Создан спутник: " + i3.name + " (заряд: 15%)");
+        System.out.println("Создан спутник: " + c1.getName() + " (заряд: 85%)");
+        System.out.println("Создан спутник: " + c2.getName() + " (заряд: 75%)");
+        System.out.println("Создан спутник: " + i1.getName() + " (заряд: 92%)");
+        System.out.println("Создан спутник: " + i2.getName() + " (заряд: 45%)");
+        System.out.println("Создан спутник: " + i3.getName() + " (заряд: 15%)");
 
         System.out.println("---------------------------------------------");
 
@@ -63,10 +63,10 @@ public class Main {
     private static void activateAndPrint(Satellite s) {
         boolean ok = s.activate();
         if (ok) {
-            System.out.println("✅ " + s.name + ": Активация успешна");
+            System.out.println("✅ " + s.getName() + ": Активация успешна");
         } else {
-            int percent = (int) Math.round(s.batteryLevel * 100);
-            System.out.println("🛑 " + s.name + ": Ошибка активации (заряд: " + percent + "%)");
+            int percent = (int) Math.round(s.getBatteryLevel() * 100);
+            System.out.println("🛑 " + s.getName() + ": Ошибка активации (заряд: " + percent + "%)");
         }
     }
 }
