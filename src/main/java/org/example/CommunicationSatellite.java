@@ -14,7 +14,7 @@ public class CommunicationSatellite extends Satellite {
     }
 
     private void sendData(double amount) {
-        if (!isActive) {
+        if (!state.isActive()) {
             return;
         }
         System.out.println(name + ": Отправил " + amount + " Мбит данных!");
@@ -22,14 +22,15 @@ public class CommunicationSatellite extends Satellite {
 
     @Override
     public void performMission() {
-        if (!isActive) {
+        if (!state.isActive()) {
             System.out.println("🛑 " + name + ": Не может выполнить передачу - не активен");
             return;
         }
 
         System.out.println(name + ": Передача данных со скоростью " + bandwidth + " Мбит/с");
         sendData(bandwidth);
-        consumeBattery(0.05);
+        energy.consume(0.05);
+        updateStateAfterEnergyConsumption();
     }
 
     @Override
@@ -37,8 +38,8 @@ public class CommunicationSatellite extends Satellite {
         return "CommunicationSatellite{" +
                 "bandwidth=" + bandwidth +
                 ", name='" + name + '\'' +
-                ", isActive=" + isActive +
-                ", batteryLevel=" + batteryLevel +
+                ", isActive=" + state.isActive() +
+                ", batteryLevel=" + energy.getBatteryLevel() +
                 '}';
     }
 }

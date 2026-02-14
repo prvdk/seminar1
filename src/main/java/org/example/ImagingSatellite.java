@@ -20,7 +20,7 @@ public class ImagingSatellite extends Satellite {
     }
 
     private void takePhoto() {
-        if (!isActive) {
+        if (!state.isActive()) {
             return;
         }
         photosTaken++;
@@ -29,14 +29,15 @@ public class ImagingSatellite extends Satellite {
 
     @Override
     public void performMission() {
-        if (!isActive) {
+        if (!state.isActive()) {
             System.out.println("🛑 " + name + ": Не может выполнить съемку - не активен");
             return;
         }
 
         System.out.println(name + ": Съемка территории с разрешением " + resolution + " м/пиксель");
         takePhoto();
-        consumeBattery(0.08);
+        energy.consume(0.08);
+        updateStateAfterEnergyConsumption();
     }
 
     @Override
@@ -45,8 +46,8 @@ public class ImagingSatellite extends Satellite {
                 "resolution=" + resolution +
                 ", photosTaken=" + photosTaken +
                 ", name='" + name + '\'' +
-                ", isActive=" + isActive +
-                ", batteryLevel=" + batteryLevel +
+                ", isActive=" + state.isActive() +
+                ", batteryLevel=" + energy.getBatteryLevel() +
                 '}';
     }
 }
