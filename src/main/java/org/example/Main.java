@@ -56,7 +56,7 @@ public class Main {
         operationCenterService.showConstellationStatus("Орбита-1");
 
         System.out.println("\n=== ДАННЫЕ РЕПОЗИТОРИЯ (через repository bean) ===");
-        System.out.println(constellationRepository.findAll());
+        System.out.println(constellationRepository.getAllConstellations());
         System.out.println("\n=== ДАННЫЕ ЧЕРЕЗ СЕРВИС (тот же repository bean) ===");
         System.out.println(operationCenterService.getAllConstellations());
 

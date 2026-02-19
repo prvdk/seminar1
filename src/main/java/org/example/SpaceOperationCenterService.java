@@ -1,17 +1,15 @@
 package org.example;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SpaceOperationCenterService {
 
     private final ConstellationRepository constellationRepository;
-
-    public SpaceOperationCenterService(ConstellationRepository constellationRepository) {
-        this.constellationRepository = constellationRepository;
-    }
 
     public SatelliteConstellation createAndSaveConstellation(String name) {
         if (constellationRepository.existsByName(name)) {
@@ -63,7 +61,7 @@ public class SpaceOperationCenterService {
     }
 
     public Map<String, SatelliteConstellation> getAllConstellations() {
-        return constellationRepository.findAll();
+        return constellationRepository.getAllConstellations();
     }
 
     private SatelliteConstellation getConstellationOrThrow(String name) {

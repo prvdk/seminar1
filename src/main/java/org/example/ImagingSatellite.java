@@ -1,22 +1,19 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString(callSuper = true)
 public class ImagingSatellite extends Satellite {
 
-    private double resolution;
+    private final double resolution;
     private int photosTaken;
 
     public ImagingSatellite(String name, double batteryLevel, double resolution) {
         super(name, batteryLevel);
         this.resolution = resolution;
         this.photosTaken = 0;
-    }
-
-    public double getResolution() {
-        return resolution;
-    }
-
-    public int getPhotosTaken() {
-        return photosTaken;
     }
 
     private void takePhoto() {
@@ -40,14 +37,4 @@ public class ImagingSatellite extends Satellite {
         updateStateAfterEnergyConsumption();
     }
 
-    @Override
-    public String toString() {
-        return "ImagingSatellite{" +
-                "resolution=" + resolution +
-                ", photosTaken=" + photosTaken +
-                ", name='" + name + '\'' +
-                ", state=" + state +
-                ", energy=" + energy +
-                '}';
-    }
 }

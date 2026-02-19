@@ -1,16 +1,17 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString(callSuper = true)
 public class CommunicationSatellite extends Satellite {
 
-    private double bandwidth;
+    private final double bandwidth;
 
     public CommunicationSatellite(String name, double batteryLevel, double bandwidth) {
         super(name, batteryLevel);
         this.bandwidth = bandwidth;
-    }
-
-    public double getBandwidth() {
-        return bandwidth;
     }
 
     private void sendData(double amount) {
@@ -33,13 +34,4 @@ public class CommunicationSatellite extends Satellite {
         updateStateAfterEnergyConsumption();
     }
 
-    @Override
-    public String toString() {
-        return "CommunicationSatellite{" +
-                "bandwidth=" + bandwidth +
-                ", name='" + name + '\'' +
-                ", state=" + state +
-                ", energy=" + energy +
-                '}';
-    }
 }

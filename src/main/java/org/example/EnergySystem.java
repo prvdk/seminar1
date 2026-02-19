@@ -1,5 +1,10 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
 public class EnergySystem {
 
     private double batteryLevel;
@@ -15,10 +20,6 @@ public class EnergySystem {
         batteryLevel = clamp01(batteryLevel - amount);
     }
 
-    public double getBatteryLevel() {
-        return batteryLevel;
-    }
-
     private double clamp01(double value) {
         if (value < 0.0) {
             return 0.0;
@@ -29,10 +30,4 @@ public class EnergySystem {
         return value;
     }
 
-    @Override
-    public String toString() {
-        return "EnergySystem{" +
-                "batteryLevel=" + batteryLevel +
-                '}';
-    }
 }

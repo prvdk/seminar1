@@ -25,7 +25,7 @@ public class ConstellationRepository {
         return Optional.ofNullable(constellations.get(name));
     }
 
-    public Map<String, SatelliteConstellation> findAll() {
+    public Map<String, SatelliteConstellation> getAllConstellations() {
         return constellations;
     }
 

@@ -1,12 +1,17 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString
 public abstract class Satellite {
 
     private static final double MIN_ACTIVATION_BATTERY = 0.2;
 
-    protected String name;
-    protected SatelliteState state;
-    protected EnergySystem energy;
+    protected final String name;
+    protected final SatelliteState state;
+    protected final EnergySystem energy;
 
     public Satellite(String name, double batteryLevel) {
         this.name = name;
@@ -34,19 +39,11 @@ public abstract class Satellite {
         }
     }
 
-    public String getName() {
-        return name;
-    }
-
     public boolean isActive() {
         return state.isActive();
     }
 
     public double getBatteryLevel() {
         return energy.getBatteryLevel();
-    }
-
-    public SatelliteState getState() {
-        return state;
     }
 }
