@@ -11,7 +11,11 @@ public class ImagingSatellite extends Satellite {
     private int photosTaken;
 
     public ImagingSatellite(String name, double batteryLevel, double resolution) {
-        super(name, batteryLevel);
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), resolution);
+    }
+
+    public ImagingSatellite(String name, EnergySystem energySystem, double resolution) {
+        super(name, energySystem);
         this.resolution = resolution;
         this.photosTaken = 0;
     }

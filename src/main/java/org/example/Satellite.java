@@ -3,6 +3,8 @@ package org.example;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Objects;
+
 @Getter
 @ToString
 public abstract class Satellite {
@@ -14,9 +16,13 @@ public abstract class Satellite {
     protected final EnergySystem energy;
 
     public Satellite(String name, double batteryLevel) {
-        this.name = name;
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build());
+    }
+
+    public Satellite(String name, EnergySystem energySystem) {
+        this.name = Objects.requireNonNull(name, "Satellite name must not be null");
         this.state = new SatelliteState();
-        this.energy = new EnergySystem(batteryLevel);
+        this.energy = Objects.requireNonNull(energySystem, "Energy system must not be null");
     }
 
     public boolean activate() {

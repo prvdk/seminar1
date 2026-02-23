@@ -20,11 +20,14 @@ public class Main {
         System.out.println("СОЗДАНИЕ СПЕЦИАЛИЗИРОВАННЫХ СПУТНИКОВ:");
         System.out.println("---------------------------------------------");
 
-        CommunicationSatellite c1 = new CommunicationSatellite("Связь-1", 0.85, 500.0);
-        CommunicationSatellite c2 = new CommunicationSatellite("Связь-2", 0.75, 1000.0);
-        ImagingSatellite i1 = new ImagingSatellite("ДЗЗ-1", 0.92, 2.5);
-        ImagingSatellite i2 = new ImagingSatellite("ДЗЗ-2", 0.45, 1.0);
-        ImagingSatellite i3 = new ImagingSatellite("ДЗЗ-3", 0.15, 0.5);
+        SatelliteFactory communicationFactory = new CommunicationSatelliteFactory();
+        SatelliteFactory imagingFactory = new ImagingSatelliteFactory();
+
+        Satellite c1 = communicationFactory.createSatelliteWithParameter("Связь-1", 0.85, 500.0);
+        Satellite c2 = communicationFactory.createSatelliteWithParameter("Связь-2", 0.75, 1000.0);
+        Satellite i1 = imagingFactory.createSatelliteWithParameter("ДЗЗ-1", 0.92, 2.5);
+        Satellite i2 = imagingFactory.createSatelliteWithParameter("ДЗЗ-2", 0.45, 1.0);
+        Satellite i3 = imagingFactory.createSatelliteWithParameter("ДЗЗ-3", 0.15, 0.5);
 
         System.out.println("Создан спутник: " + c1.getName() + " (" + c1.getBatteryLevel() + ")");
         System.out.println("Создан спутник: " + c2.getName() + " (" + c2.getBatteryLevel() + ")");

@@ -1,10 +1,13 @@
 package org.example.seminars;
 
 import org.example.CommunicationSatellite;
+import org.example.CommunicationSatelliteFactory;
 import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
+import org.example.ImagingSatelliteFactory;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
+import org.example.SatelliteFactory;
 import org.example.SpaceOperationCenterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +39,9 @@ class SpaceOperationCenterServiceIntegrationTest {
     private static final double IMAGING_RESOLUTION = 1.2;
     private static final double DELTA = 1e-9;
 
+    private final SatelliteFactory communicationFactory = new CommunicationSatelliteFactory();
+    private final SatelliteFactory imagingFactory = new ImagingSatelliteFactory();
+
     @Autowired
     private SpaceOperationCenterService operationCenterService;
 
@@ -51,16 +57,14 @@ class SpaceOperationCenterServiceIntegrationTest {
     @DisplayName("full lifecycle should create add activate and execute missions through service")
     void fullLifecycle_shouldCreateAddActivateAndExecuteMissionsThroughService() {
         operationCenterService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
-        CommunicationSatellite communicationSatellite = new CommunicationSatellite(
+        CommunicationSatellite communicationSatellite = createCommunicationSatellite(
                 HIGH_BATTERY_COMMUNICATION_NAME,
                 HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
-        ImagingSatellite imagingSatellite = new ImagingSatellite(
+                COMMUNICATION_BANDWIDTH);
+        ImagingSatellite imagingSatellite = createImagingSatellite(
                 HIGH_BATTERY_IMAGING_NAME,
                 HIGH_BATTERY_LEVEL,
-                IMAGING_RESOLUTION
-        );
+                IMAGING_RESOLUTION);
 
         operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, communicationSatellite);
         operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, imagingSatellite);
@@ -87,16 +91,14 @@ class SpaceOperationCenterServiceIntegrationTest {
     @DisplayName("executeConstellationMission should not change batteries while satellites are inactive")
     void executeConstellationMission_shouldNotChangeBatteriesWhileSatellitesAreInactive() {
         operationCenterService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
-        CommunicationSatellite communicationSatellite = new CommunicationSatellite(
+        CommunicationSatellite communicationSatellite = createCommunicationSatellite(
                 HIGH_BATTERY_COMMUNICATION_NAME,
                 HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
-        ImagingSatellite imagingSatellite = new ImagingSatellite(
+                COMMUNICATION_BANDWIDTH);
+        ImagingSatellite imagingSatellite = createImagingSatellite(
                 HIGH_BATTERY_IMAGING_NAME,
                 HIGH_BATTERY_LEVEL,
-                IMAGING_RESOLUTION
-        );
+                IMAGING_RESOLUTION);
         operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, communicationSatellite);
         operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, imagingSatellite);
         double communicationBatteryBeforeMission = communicationSatellite.getBatteryLevel();
@@ -128,11 +130,10 @@ class SpaceOperationCenterServiceIntegrationTest {
     @DisplayName("activateAllSatellites should keep low battery satellite inactive")
     void activateAllSatellites_shouldKeepLowBatterySatelliteInactive() {
         operationCenterService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
-        CommunicationSatellite lowBatterySatellite = new CommunicationSatellite(
+        CommunicationSatellite lowBatterySatellite = createCommunicationSatellite(
                 LOW_BATTERY_COMMUNICATION_NAME,
                 LOW_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
+                COMMUNICATION_BANDWIDTH);
         operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, lowBatterySatellite);
 
         operationCenterService.activateAllSatellites(PRIMARY_CONSTELLATION_NAME);
@@ -144,11 +145,10 @@ class SpaceOperationCenterServiceIntegrationTest {
     @Test
     @DisplayName("addSatelliteToConstellation should throw exception for unknown constellation")
     void addSatelliteToConstellation_shouldThrowExceptionForUnknownConstellation() {
-        CommunicationSatellite communicationSatellite = new CommunicationSatellite(
+        Satellite communicationSatellite = communicationFactory.createSatelliteWithParameter(
                 HIGH_BATTERY_COMMUNICATION_NAME,
                 HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
+                COMMUNICATION_BANDWIDTH);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -156,5 +156,13 @@ class SpaceOperationCenterServiceIntegrationTest {
         );
 
         assertTrue(exception.getMessage().contains("Группировка не найдена"));
+    }
+
+    private CommunicationSatellite createCommunicationSatellite(String name, double batteryLevel, double bandwidth) {
+        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(name, batteryLevel, bandwidth);
+    }
+
+    private ImagingSatellite createImagingSatellite(String name, double batteryLevel, double resolution) {
+        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(name, batteryLevel, resolution);
     }
 }

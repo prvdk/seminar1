@@ -10,7 +10,11 @@ public class CommunicationSatellite extends Satellite {
     private final double bandwidth;
 
     public CommunicationSatellite(String name, double batteryLevel, double bandwidth) {
-        super(name, batteryLevel);
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), bandwidth);
+    }
+
+    public CommunicationSatellite(String name, EnergySystem energySystem, double bandwidth) {
+        super(name, energySystem);
         this.bandwidth = bandwidth;
     }
 

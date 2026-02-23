@@ -1,10 +1,13 @@
 package org.example.seminars;
 
 import org.example.CommunicationSatellite;
+import org.example.CommunicationSatelliteFactory;
 import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
+import org.example.ImagingSatelliteFactory;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
+import org.example.SatelliteFactory;
 import org.example.SpaceOperationCenterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +37,9 @@ class ConstellationRepositoryIntegrationTest {
     private static final double COMMUNICATION_BANDWIDTH = 600.0;
     private static final double IMAGING_RESOLUTION = 1.5;
 
+    private final SatelliteFactory communicationFactory = new CommunicationSatelliteFactory();
+    private final SatelliteFactory imagingFactory = new ImagingSatelliteFactory();
+
     @Autowired
     private ConstellationRepository constellationRepository;
 
@@ -49,16 +55,14 @@ class ConstellationRepositoryIntegrationTest {
     @DisplayName("full lifecycle should create add activate and execute missions for constellation")
     void fullLifecycle_shouldCreateAddActivateAndExecuteMissionsForConstellation() {
         operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
-        CommunicationSatellite communicationSatellite = new CommunicationSatellite(
+        CommunicationSatellite communicationSatellite = createCommunicationSatellite(
                 COMMUNICATION_SATELLITE_NAME,
                 HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
-        ImagingSatellite imagingSatellite = new ImagingSatellite(
+                COMMUNICATION_BANDWIDTH);
+        ImagingSatellite imagingSatellite = createImagingSatellite(
                 IMAGING_SATELLITE_NAME,
                 HIGH_BATTERY_LEVEL,
-                IMAGING_RESOLUTION
-        );
+                IMAGING_RESOLUTION);
 
         SatelliteConstellation createdConstellation = constellationRepository
                 .findByName(INTEGRATION_CONSTELLATION_NAME)
@@ -89,11 +93,10 @@ class ConstellationRepositoryIntegrationTest {
     @Test
     @DisplayName("add satellite should throw exception for unknown constellation")
     void addSatellite_shouldThrowExceptionForUnknownConstellation() {
-        CommunicationSatellite communicationSatellite = new CommunicationSatellite(
+        Satellite communicationSatellite = communicationFactory.createSatelliteWithParameter(
                 COMMUNICATION_SATELLITE_NAME,
                 HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
+                COMMUNICATION_BANDWIDTH);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -119,16 +122,23 @@ class ConstellationRepositoryIntegrationTest {
     @DisplayName("activateAllSatellites should keep low-battery satellite inactive")
     void activateAllSatellites_shouldKeepLowBatterySatelliteInactive() {
         operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
-        CommunicationSatellite lowBatterySatellite = new CommunicationSatellite(
+        CommunicationSatellite lowBatterySatellite = createCommunicationSatellite(
                 "Low-Battery-Comm",
                 LOW_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH
-        );
+                COMMUNICATION_BANDWIDTH);
         operationCenterService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, lowBatterySatellite);
 
         operationCenterService.activateAllSatellites(INTEGRATION_CONSTELLATION_NAME);
 
         assertFalse(lowBatterySatellite.isActive());
         assertDoesNotThrow(() -> operationCenterService.showConstellationStatus(INTEGRATION_CONSTELLATION_NAME));
+    }
+
+    private CommunicationSatellite createCommunicationSatellite(String name, double batteryLevel, double bandwidth) {
+        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(name, batteryLevel, bandwidth);
+    }
+
+    private ImagingSatellite createImagingSatellite(String name, double batteryLevel, double resolution) {
+        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(name, batteryLevel, resolution);
     }
 }
