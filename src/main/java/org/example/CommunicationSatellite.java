@@ -1,20 +1,25 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString(callSuper = true)
 public class CommunicationSatellite extends Satellite {
 
-    private double bandwidth;
+    private final double bandwidth;
 
     public CommunicationSatellite(String name, double batteryLevel, double bandwidth) {
-        super(name, batteryLevel);
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), bandwidth);
+    }
+
+    public CommunicationSatellite(String name, EnergySystem energySystem, double bandwidth) {
+        super(name, energySystem);
         this.bandwidth = bandwidth;
     }
 
-    public double getBandwidth() {
-        return bandwidth;
-    }
-
     private void sendData(double amount) {
-        if (!isActive) {
+        if (!state.isActive()) {
             return;
         }
         System.out.println(name + ": Отправил " + amount + " Мбит данных!");
@@ -22,23 +27,15 @@ public class CommunicationSatellite extends Satellite {
 
     @Override
     public void performMission() {
-        if (!isActive) {
+        if (!state.isActive()) {
             System.out.println("🛑 " + name + ": Не может выполнить передачу - не активен");
             return;
         }
 
         System.out.println(name + ": Передача данных со скоростью " + bandwidth + " Мбит/с");
         sendData(bandwidth);
-        consumeBattery(0.05);
+        energy.consume(0.05);
+        updateStateAfterEnergyConsumption();
     }
 
-    @Override
-    public String toString() {
-        return "CommunicationSatellite{" +
-                "bandwidth=" + bandwidth +
-                ", name='" + name + '\'' +
-                ", isActive=" + isActive +
-                ", batteryLevel=" + batteryLevel +
-                '}';
-    }
 }
