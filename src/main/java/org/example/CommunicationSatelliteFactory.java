@@ -1,16 +1,27 @@
 package org.example;
 
-public class CommunicationSatelliteFactory extends SatelliteFactory {
+import org.springframework.stereotype.Component;
 
-    private static final double DEFAULT_BANDWIDTH = 100.0;
+import java.util.Objects;
+
+@Component
+public class CommunicationSatelliteFactory implements SatelliteFactory {
 
     @Override
-    public Satellite createSatellite(String name, double batteryLevel) {
-        return new CommunicationSatellite(name, batteryLevel, DEFAULT_BANDWIDTH);
+    public Satellite createSatelliteWithParameter(SatelliteParam param) {
+        Objects.requireNonNull(param, "Satellite param must not be null");
+        if (!(param instanceof CommunicationSatelliteParam communicationParam)) {
+            throw new SpaceOperationException("Communication factory does not support parameter type: " + param.getClass().getSimpleName());
+        }
+        return new CommunicationSatellite(
+                communicationParam.getName(),
+                communicationParam.getBatteryLevel(),
+                communicationParam.getBandwidth()
+        );
     }
 
     @Override
-    public Satellite createSatelliteWithParameter(String name, double batteryLevel, double parameter) {
-        return new CommunicationSatellite(name, batteryLevel, parameter);
+    public boolean isSatelliteTypeSupported(SatelliteType type) {
+        return SatelliteType.COMMUNICATION == type;
     }
 }

@@ -2,9 +2,11 @@ package org.example.seminars;
 
 import org.example.CommunicationSatellite;
 import org.example.CommunicationSatelliteFactory;
+import org.example.CommunicationSatelliteParam;
 import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
 import org.example.ImagingSatelliteFactory;
+import org.example.ImagingSatelliteParam;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
 import org.example.SatelliteFactory;
@@ -146,9 +148,11 @@ class SpaceOperationCenterServiceIntegrationTest {
     @DisplayName("addSatelliteToConstellation should throw exception for unknown constellation")
     void addSatelliteToConstellation_shouldThrowExceptionForUnknownConstellation() {
         Satellite communicationSatellite = communicationFactory.createSatelliteWithParameter(
-                HIGH_BATTERY_COMMUNICATION_NAME,
-                HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH);
+                new CommunicationSatelliteParam(
+                        HIGH_BATTERY_COMMUNICATION_NAME,
+                        HIGH_BATTERY_LEVEL,
+                        COMMUNICATION_BANDWIDTH
+                ));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -159,10 +163,14 @@ class SpaceOperationCenterServiceIntegrationTest {
     }
 
     private CommunicationSatellite createCommunicationSatellite(String name, double batteryLevel, double bandwidth) {
-        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(name, batteryLevel, bandwidth);
+        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(
+                new CommunicationSatelliteParam(name, batteryLevel, bandwidth)
+        );
     }
 
     private ImagingSatellite createImagingSatellite(String name, double batteryLevel, double resolution) {
-        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(name, batteryLevel, resolution);
+        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(
+                new ImagingSatelliteParam(name, batteryLevel, resolution)
+        );
     }
 }

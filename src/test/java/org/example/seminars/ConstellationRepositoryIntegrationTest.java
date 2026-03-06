@@ -2,9 +2,11 @@ package org.example.seminars;
 
 import org.example.CommunicationSatellite;
 import org.example.CommunicationSatelliteFactory;
+import org.example.CommunicationSatelliteParam;
 import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
 import org.example.ImagingSatelliteFactory;
+import org.example.ImagingSatelliteParam;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
 import org.example.SatelliteFactory;
@@ -94,9 +96,11 @@ class ConstellationRepositoryIntegrationTest {
     @DisplayName("add satellite should throw exception for unknown constellation")
     void addSatellite_shouldThrowExceptionForUnknownConstellation() {
         Satellite communicationSatellite = communicationFactory.createSatelliteWithParameter(
-                COMMUNICATION_SATELLITE_NAME,
-                HIGH_BATTERY_LEVEL,
-                COMMUNICATION_BANDWIDTH);
+                new CommunicationSatelliteParam(
+                        COMMUNICATION_SATELLITE_NAME,
+                        HIGH_BATTERY_LEVEL,
+                        COMMUNICATION_BANDWIDTH
+                ));
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -135,10 +139,14 @@ class ConstellationRepositoryIntegrationTest {
     }
 
     private CommunicationSatellite createCommunicationSatellite(String name, double batteryLevel, double bandwidth) {
-        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(name, batteryLevel, bandwidth);
+        return (CommunicationSatellite) communicationFactory.createSatelliteWithParameter(
+                new CommunicationSatelliteParam(name, batteryLevel, bandwidth)
+        );
     }
 
     private ImagingSatellite createImagingSatellite(String name, double batteryLevel, double resolution) {
-        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(name, batteryLevel, resolution);
+        return (ImagingSatellite) imagingFactory.createSatelliteWithParameter(
+                new ImagingSatelliteParam(name, batteryLevel, resolution)
+        );
     }
 }

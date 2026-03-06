@@ -15,19 +15,17 @@ public class Main {
 
         ConstellationRepository constellationRepository = context.getBean(ConstellationRepository.class);
         SpaceOperationCenterService operationCenterService = context.getBean(SpaceOperationCenterService.class);
+        SatelliteService satelliteService = context.getBean(SatelliteService.class);
 
         System.out.println();
         System.out.println("СОЗДАНИЕ СПЕЦИАЛИЗИРОВАННЫХ СПУТНИКОВ:");
         System.out.println("---------------------------------------------");
 
-        SatelliteFactory communicationFactory = new CommunicationSatelliteFactory();
-        SatelliteFactory imagingFactory = new ImagingSatelliteFactory();
-
-        Satellite c1 = communicationFactory.createSatelliteWithParameter("Связь-1", 0.85, 500.0);
-        Satellite c2 = communicationFactory.createSatelliteWithParameter("Связь-2", 0.75, 1000.0);
-        Satellite i1 = imagingFactory.createSatelliteWithParameter("ДЗЗ-1", 0.92, 2.5);
-        Satellite i2 = imagingFactory.createSatelliteWithParameter("ДЗЗ-2", 0.45, 1.0);
-        Satellite i3 = imagingFactory.createSatelliteWithParameter("ДЗЗ-3", 0.15, 0.5);
+        Satellite c1 = satelliteService.createSatellite(new CommunicationSatelliteParam("Связь-1", 0.85, 500.0));
+        Satellite c2 = satelliteService.createSatellite(new CommunicationSatelliteParam("Связь-2", 0.75, 1000.0));
+        Satellite i1 = satelliteService.createSatellite(new ImagingSatelliteParam("ДЗЗ-1", 0.92, 2.5));
+        Satellite i2 = satelliteService.createSatellite(new ImagingSatelliteParam("ДЗЗ-2", 0.45, 1.0));
+        Satellite i3 = satelliteService.createSatellite(new ImagingSatelliteParam("ДЗЗ-3", 0.15, 0.5));
 
         System.out.println("Создан спутник: " + c1.getName() + " (" + c1.getBatteryLevel() + ")");
         System.out.println("Создан спутник: " + c2.getName() + " (" + c2.getBatteryLevel() + ")");

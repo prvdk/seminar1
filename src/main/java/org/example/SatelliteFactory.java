@@ -1,8 +1,8 @@
 package org.example;
 
-public abstract class SatelliteFactory {
+public interface SatelliteFactory {
 
-    public abstract Satellite createSatellite(String name, double batteryLevel);
+    Satellite createSatelliteWithParameter(SatelliteParam param);
 
-    public abstract Satellite createSatelliteWithParameter(String name, double batteryLevel, double parameter);
+    boolean isSatelliteTypeSupported(SatelliteType type);
 }

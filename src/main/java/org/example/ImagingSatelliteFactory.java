@@ -1,16 +1,27 @@
 package org.example;
 
-public class ImagingSatelliteFactory extends SatelliteFactory {
+import org.springframework.stereotype.Component;
 
-    private static final double DEFAULT_RESOLUTION = 5.0;
+import java.util.Objects;
+
+@Component
+public class ImagingSatelliteFactory implements SatelliteFactory {
 
     @Override
-    public Satellite createSatellite(String name, double batteryLevel) {
-        return new ImagingSatellite(name, batteryLevel, DEFAULT_RESOLUTION);
+    public Satellite createSatelliteWithParameter(SatelliteParam param) {
+        Objects.requireNonNull(param, "Satellite param must not be null");
+        if (!(param instanceof ImagingSatelliteParam imagingParam)) {
+            throw new SpaceOperationException("Imaging factory does not support parameter type: " + param.getClass().getSimpleName());
+        }
+        return new ImagingSatellite(
+                imagingParam.getName(),
+                imagingParam.getBatteryLevel(),
+                imagingParam.getResolution()
+        );
     }
 
     @Override
-    public Satellite createSatelliteWithParameter(String name, double batteryLevel, double parameter) {
-        return new ImagingSatellite(name, batteryLevel, parameter);
+    public boolean isSatelliteTypeSupported(SatelliteType type) {
+        return SatelliteType.IMAGE == type;
     }
 }
