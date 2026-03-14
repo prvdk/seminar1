@@ -1,10 +1,10 @@
 package org.example.seminars;
 
 import org.example.ConstellationRepository;
+import org.example.ConstellationService;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
 import org.example.SatelliteState;
-import org.example.SpaceOperationCenterService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +27,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@DisplayName("Mock tests for SpaceOperationCenterService")
+@DisplayName("Mock tests for ConstellationService")
 @ExtendWith(MockitoExtension.class)
-class SpaceOperationCenterServiceMockTest {
+class ConstellationServiceMockTest {
 
     private static final String PRIMARY_CONSTELLATION_NAME = "Service-Mock-Orbit-Alpha";
     private static final String UNKNOWN_CONSTELLATION_NAME = "Service-Mock-Orbit-Unknown";
@@ -40,7 +40,7 @@ class SpaceOperationCenterServiceMockTest {
     private ConstellationRepository constellationRepository;
 
     @InjectMocks
-    private SpaceOperationCenterService operationCenterService;
+    private ConstellationService constellationService;
 
     @Test
     @DisplayName("createAndSaveConstellation should save new constellation when name is unique")
@@ -50,7 +50,7 @@ class SpaceOperationCenterServiceMockTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         SatelliteConstellation savedConstellation =
-                operationCenterService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
+                constellationService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
 
         ArgumentCaptor<SatelliteConstellation> constellationCaptor =
                 ArgumentCaptor.forClass(SatelliteConstellation.class);
@@ -70,7 +70,7 @@ class SpaceOperationCenterServiceMockTest {
         when(constellationRepository.findByName(PRIMARY_CONSTELLATION_NAME))
                 .thenReturn(Optional.of(existingConstellation));
 
-        SatelliteConstellation result = operationCenterService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
+        SatelliteConstellation result = constellationService.createAndSaveConstellation(PRIMARY_CONSTELLATION_NAME);
 
         assertSame(existingConstellation, result);
         verify(constellationRepository).findByName(PRIMARY_CONSTELLATION_NAME);
@@ -86,7 +86,7 @@ class SpaceOperationCenterServiceMockTest {
                 .thenReturn(Optional.of(locatedConstellation));
         when(satellite.getName()).thenReturn(FIRST_SATELLITE_NAME);
 
-        operationCenterService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, satellite);
+        constellationService.addSatelliteToConstellation(PRIMARY_CONSTELLATION_NAME, satellite);
 
         verify(locatedConstellation).addSatellite(satellite);
         verify(constellationRepository).findByName(PRIMARY_CONSTELLATION_NAME);
@@ -100,7 +100,7 @@ class SpaceOperationCenterServiceMockTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> operationCenterService.addSatelliteToConstellation(UNKNOWN_CONSTELLATION_NAME, satellite)
+                () -> constellationService.addSatelliteToConstellation(UNKNOWN_CONSTELLATION_NAME, satellite)
         );
 
         assertTrue(exception.getMessage().contains("Группировка не найдена"));
@@ -114,7 +114,7 @@ class SpaceOperationCenterServiceMockTest {
         when(constellationRepository.findByName(PRIMARY_CONSTELLATION_NAME))
                 .thenReturn(Optional.of(locatedConstellation));
 
-        operationCenterService.executeConstellationMission(PRIMARY_CONSTELLATION_NAME);
+        constellationService.executeConstellationMission(PRIMARY_CONSTELLATION_NAME);
 
         verify(locatedConstellation).executeAllMissions();
     }
@@ -133,7 +133,7 @@ class SpaceOperationCenterServiceMockTest {
         when(secondSatellite.activate()).thenReturn(false);
         when(secondSatellite.getBatteryLevel()).thenReturn(0.10);
 
-        operationCenterService.activateAllSatellites(PRIMARY_CONSTELLATION_NAME);
+        constellationService.activateAllSatellites(PRIMARY_CONSTELLATION_NAME);
 
         verify(firstSatellite).activate();
         verify(secondSatellite).activate();
@@ -150,7 +150,7 @@ class SpaceOperationCenterServiceMockTest {
         when(constellation.getSatellites()).thenReturn(List.of(satellite));
         when(satellite.getState()).thenReturn(new SatelliteState());
 
-        operationCenterService.showConstellationStatus(PRIMARY_CONSTELLATION_NAME);
+        constellationService.showConstellationStatus(PRIMARY_CONSTELLATION_NAME);
 
         verify(satellite).getState();
     }
@@ -162,7 +162,7 @@ class SpaceOperationCenterServiceMockTest {
         repositorySnapshot.put(PRIMARY_CONSTELLATION_NAME, new SatelliteConstellation(PRIMARY_CONSTELLATION_NAME));
         when(constellationRepository.getAllConstellations()).thenReturn(repositorySnapshot);
 
-        Map<String, SatelliteConstellation> actualSnapshot = operationCenterService.getAllConstellations();
+        Map<String, SatelliteConstellation> actualSnapshot = constellationService.getAllConstellations();
 
         assertSame(repositorySnapshot, actualSnapshot);
         verify(constellationRepository).getAllConstellations();

@@ -3,6 +3,7 @@ package org.example.seminars;
 import org.example.CommunicationSatellite;
 import org.example.CommunicationSatelliteFactory;
 import org.example.CommunicationSatelliteParam;
+import org.example.ConstellationService;
 import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
 import org.example.ImagingSatelliteFactory;
@@ -10,7 +11,6 @@ import org.example.ImagingSatelliteParam;
 import org.example.Satellite;
 import org.example.SatelliteConstellation;
 import org.example.SatelliteFactory;
-import org.example.SpaceOperationCenterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class ConstellationRepositoryIntegrationTest {
     private ConstellationRepository constellationRepository;
 
     @Autowired
-    private SpaceOperationCenterService operationCenterService;
+    private ConstellationService constellationService;
 
     @BeforeEach
     void cleanRepository() {
@@ -56,7 +56,7 @@ class ConstellationRepositoryIntegrationTest {
     @Test
     @DisplayName("full lifecycle should create add activate and execute missions for constellation")
     void fullLifecycle_shouldCreateAddActivateAndExecuteMissionsForConstellation() {
-        operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
+        constellationService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
         CommunicationSatellite communicationSatellite = createCommunicationSatellite(
                 COMMUNICATION_SATELLITE_NAME,
                 HIGH_BATTERY_LEVEL,
@@ -72,20 +72,20 @@ class ConstellationRepositoryIntegrationTest {
         assertNotNull(createdConstellation);
         assertEquals(0, createdConstellation.getSatellites().size());
 
-        operationCenterService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, communicationSatellite);
-        operationCenterService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, imagingSatellite);
+        constellationService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, communicationSatellite);
+        constellationService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, imagingSatellite);
 
         assertEquals(2, createdConstellation.getSatellites().size());
         assertTrue(createdConstellation.getSatellites().stream().noneMatch(Satellite::isActive));
 
-        operationCenterService.activateAllSatellites(INTEGRATION_CONSTELLATION_NAME);
+        constellationService.activateAllSatellites(INTEGRATION_CONSTELLATION_NAME);
         assertTrue(createdConstellation.getSatellites().stream().allMatch(Satellite::isActive));
 
         double communicationBatteryBeforeMission = communicationSatellite.getBatteryLevel();
         double imagingBatteryBeforeMission = imagingSatellite.getBatteryLevel();
         int photosBeforeMission = imagingSatellite.getPhotosTaken();
 
-        operationCenterService.executeConstellationMission(INTEGRATION_CONSTELLATION_NAME);
+        constellationService.executeConstellationMission(INTEGRATION_CONSTELLATION_NAME);
 
         assertTrue(communicationSatellite.getBatteryLevel() < communicationBatteryBeforeMission);
         assertTrue(imagingSatellite.getBatteryLevel() < imagingBatteryBeforeMission);
@@ -104,7 +104,7 @@ class ConstellationRepositoryIntegrationTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> operationCenterService.addSatelliteToConstellation(UNKNOWN_CONSTELLATION_NAME, communicationSatellite)
+                () -> constellationService.addSatelliteToConstellation(UNKNOWN_CONSTELLATION_NAME, communicationSatellite)
         );
 
         assertTrue(exception.getMessage().contains("Группировка не найдена"));
@@ -113,9 +113,9 @@ class ConstellationRepositoryIntegrationTest {
     @Test
     @DisplayName("createAndSaveConstellation should return existing constellation for duplicate name")
     void createAndSaveConstellation_shouldReturnExistingConstellationForDuplicateName() {
-        SatelliteConstellation firstCreation = operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
-        SatelliteConstellation secondCreation = operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
-        Map<String, SatelliteConstellation> allConstellations = operationCenterService.getAllConstellations();
+        SatelliteConstellation firstCreation = constellationService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
+        SatelliteConstellation secondCreation = constellationService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
+        Map<String, SatelliteConstellation> allConstellations = constellationService.getAllConstellations();
 
         assertEquals(firstCreation, secondCreation);
         assertEquals(1, allConstellations.size());
@@ -125,17 +125,17 @@ class ConstellationRepositoryIntegrationTest {
     @Test
     @DisplayName("activateAllSatellites should keep low-battery satellite inactive")
     void activateAllSatellites_shouldKeepLowBatterySatelliteInactive() {
-        operationCenterService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
+        constellationService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
         CommunicationSatellite lowBatterySatellite = createCommunicationSatellite(
                 "Low-Battery-Comm",
                 LOW_BATTERY_LEVEL,
                 COMMUNICATION_BANDWIDTH);
-        operationCenterService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, lowBatterySatellite);
+        constellationService.addSatelliteToConstellation(INTEGRATION_CONSTELLATION_NAME, lowBatterySatellite);
 
-        operationCenterService.activateAllSatellites(INTEGRATION_CONSTELLATION_NAME);
+        constellationService.activateAllSatellites(INTEGRATION_CONSTELLATION_NAME);
 
         assertFalse(lowBatterySatellite.isActive());
-        assertDoesNotThrow(() -> operationCenterService.showConstellationStatus(INTEGRATION_CONSTELLATION_NAME));
+        assertDoesNotThrow(() -> constellationService.showConstellationStatus(INTEGRATION_CONSTELLATION_NAME));
     }
 
     private CommunicationSatellite createCommunicationSatellite(String name, double batteryLevel, double bandwidth) {

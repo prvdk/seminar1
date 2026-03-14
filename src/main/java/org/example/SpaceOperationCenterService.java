@@ -3,69 +3,45 @@ package org.example;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class SpaceOperationCenterService {
 
-    private final ConstellationRepository constellationRepository;
+    private final ConstellationService constellationService;
+    private final SatelliteService satelliteService;
 
-    public SatelliteConstellation createAndSaveConstellation(String name) {
-        if (constellationRepository.existsByName(name)) {
-            System.out.println("Группировка уже существует: " + name);
-            return getConstellationOrThrow(name);
+    @MeasureExecutionTime
+    public SatelliteConstellation addSatellite(AddSatelliteRequest request) {
+        Objects.requireNonNull(request, "Add satellite request must not be null");
+
+        SatelliteConstellation constellation = constellationService.createAndSaveConstellation(request.getConstellationName());
+        for (SatelliteParam satelliteParam : request.getSatelliteParams()) {
+            Satellite satellite = satelliteService.createSatellite(satelliteParam);
+            constellationService.addSatelliteToConstellation(constellation.getConstellationName(), satellite);
+        }
+        return constellationService.getConstellation(constellation.getConstellationName());
+    }
+
+    @MeasureExecutionTime
+    public void executeMission(MissionRequest request) {
+        Objects.requireNonNull(request, "Mission request must not be null");
+        System.out.println("Запуск миссии: " + request.getMissionName());
+
+        if (request.getSatelliteType() == null) {
+            constellationService.executeConstellationMission(request.getConstellationName());
+            return;
         }
 
-        SatelliteConstellation constellation = new SatelliteConstellation(name);
-        System.out.println("Создана спутниковая группировка: " + name);
-        return constellationRepository.save(constellation);
+        constellationService.executeConstellationMission(request.getConstellationName(), request.getSatelliteType());
     }
 
-    public void addSatelliteToConstellation(String constellationName, Satellite satellite) {
-        SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
-        constellation.addSatellite(satellite);
-        System.out.println("Добавлен спутник " + satellite.getName() + " в группировку " + constellationName);
+    public SatelliteConstellation showConstellationStatus(String constellationName) {
+        return constellationService.showConstellationStatus(constellationName);
     }
 
-    public void executeConstellationMission(String constellationName) {
-        SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
-        System.out.println("\n=== ВЫПОЛНЕНИЕ МИССИЙ ДЛЯ ГРУППИРОВКИ: " + constellationName + " ===");
-        System.out.println("ВЫПОЛНЕНИЕ МИССИЙ ГРУППИРОВКИ " + constellationName.toUpperCase());
-        System.out.println("==================================================");
-        constellation.executeAllMissions();
-    }
-
-    public void activateAllSatellites(String constellationName) {
-        SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
-        System.out.println("\n=== АКТИВАЦИЯ СПУТНИКОВ В ГРУППИРОВКЕ: " + constellationName + " ===");
-
-        for (Satellite satellite : constellation.getSatellites()) {
-            boolean activated = satellite.activate();
-            if (activated) {
-                System.out.println("✅ " + satellite.getName() + ": Активация успешна");
-            } else {
-                int percent = (int) Math.round(satellite.getBatteryLevel() * 100);
-                System.out.println("🛑 " + satellite.getName() + ": Ошибка активации (заряд: " + percent + "%)");
-            }
-        }
-    }
-
-    public void showConstellationStatus(String constellationName) {
-        SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
-        System.out.println("\n=== СТАТУС ГРУППИРОВКИ: " + constellationName + " ===");
-        System.out.println("Количество спутников: " + constellation.getSatellites().size());
-        for (Satellite satellite : constellation.getSatellites()) {
-            System.out.println(satellite.getState());
-        }
-    }
-
-    public Map<String, SatelliteConstellation> getAllConstellations() {
-        return constellationRepository.getAllConstellations();
-    }
-
-    private SatelliteConstellation getConstellationOrThrow(String name) {
-        return constellationRepository.findByName(name)
-                .orElseThrow(() -> new IllegalArgumentException("Группировка не найдена: " + name));
+    public void activateConstellation(String constellationName) {
+        constellationService.activateAllSatellites(constellationName);
     }
 }
