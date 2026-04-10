@@ -1,4 +1,4 @@
-package org.example;
+package org.example.missionscheduler.domains;
 
 public record MissionRequest(
         MissionTargetType targetType,

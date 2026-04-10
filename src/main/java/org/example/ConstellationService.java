@@ -3,7 +3,6 @@ package org.example;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,17 +35,15 @@ public class ConstellationService {
         constellation.executeAllMissions();
     }
 
-    public void executeConstellationMission(String constellationName, SatelliteType satelliteType) {
+    public void executeSingleSatelliteMission(String constellationName, String satelliteName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         printMissionHeader(constellationName);
 
-        List<Satellite> selectedSatellites = constellation.getSatellites().stream()
-                .filter(satellite -> isSatelliteTypeMatches(satellite, satelliteType))
-                .toList();
-
-        for (Satellite satellite : selectedSatellites) {
-            satellite.performMission();
-        }
+        Satellite satellite = constellation.getSatellites().stream()
+                .filter(existingSatellite -> existingSatellite.getName().equals(satelliteName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Спутник не найден: " + satelliteName));
+        satellite.performMission();
     }
 
     public void activateAllSatellites(String constellationName) {
@@ -76,6 +73,15 @@ public class ConstellationService {
         return constellationRepository.getAllConstellations();
     }
 
+    public void decommissionSatellite(String constellationName, String satelliteName) {
+        SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
+        boolean removed = constellation.removeSatellite(satelliteName);
+        if (!removed) {
+            throw new IllegalArgumentException("Спутник не найден: " + satelliteName);
+        }
+        System.out.println("Спутник " + satelliteName + " выведен из эксплуатации");
+    }
+
     private SatelliteConstellation getConstellationOrThrow(String name) {
         return constellationRepository.findByName(name)
                 .orElseThrow(() -> new IllegalArgumentException("Группировка не найдена: " + name));
@@ -102,13 +108,4 @@ public class ConstellationService {
         System.out.println("🛑 " + satellite.getName() + ": Ошибка активации (заряд: " + percent + "%)");
     }
 
-    private boolean isSatelliteTypeMatches(Satellite satellite, SatelliteType satelliteType) {
-        if (satelliteType == null) {
-            return true;
-        }
-        return switch (satelliteType) {
-            case IMAGE -> satellite instanceof ImagingSatellite;
-            case COMMUNICATION -> satellite instanceof CommunicationSatellite;
-        };
-    }
 }

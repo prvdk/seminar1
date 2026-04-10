@@ -7,8 +7,8 @@ import org.example.ConstellationRepository;
 import org.example.ImagingSatellite;
 import org.example.ImagingSatelliteParam;
 import org.example.MissionRequest;
+import org.example.MissionTargetType;
 import org.example.SatelliteConstellation;
-import org.example.SatelliteType;
 import org.example.SpaceOperationCenterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -70,8 +70,8 @@ class SpaceOperationCenterServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("executeMission should run only selected satellite type")
-    void executeMission_shouldRunOnlySelectedSatelliteType() {
+    @DisplayName("executeMission should run mission for single selected satellite")
+    void executeMission_shouldRunMissionForSingleSelectedSatellite() {
         operationCenterService.addSatellite(new AddSatelliteRequest(
                 PRIMARY_CONSTELLATION_NAME,
                 List.of(
@@ -95,7 +95,11 @@ class SpaceOperationCenterServiceIntegrationTest {
         double imagingBatteryBeforeMission = imagingSatellite.getBatteryLevel();
 
         operationCenterService.executeMission(
-                new MissionRequest("Съемка Земли", PRIMARY_CONSTELLATION_NAME, SatelliteType.IMAGE)
+                new MissionRequest(
+                        MissionTargetType.SINGLE_SATELLITE,
+                        PRIMARY_CONSTELLATION_NAME,
+                        imagingSatellite.getName()
+                )
         );
 
         assertEquals(communicationBatteryBeforeMission, communicationSatellite.getBatteryLevel());

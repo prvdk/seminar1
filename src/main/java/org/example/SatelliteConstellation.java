@@ -28,4 +28,8 @@ public class SatelliteConstellation {
             s.performMission();
         }
     }
+
+    public boolean removeSatellite(String satelliteName) {
+        return satellites.removeIf(satellite -> satellite.getName().equals(satelliteName));
+    }
 }

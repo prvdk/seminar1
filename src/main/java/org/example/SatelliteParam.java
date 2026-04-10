@@ -1,10 +1,21 @@
 package org.example;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Getter;
 
 import java.util.Objects;
 
 @Getter
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = CommunicationSatelliteParam.class, name = "COMMUNICATION"),
+        @JsonSubTypes.Type(value = ImagingSatelliteParam.class, name = "IMAGE")
+})
 public abstract class SatelliteParam {
 
     private final SatelliteType type;
