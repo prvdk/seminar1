@@ -1,12 +1,17 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@ToString
 public class SatelliteConstellation {
 
-    private String constellationName;
-    private List<Satellite> satellites;
+    private final String constellationName;
+    private final List<Satellite> satellites;
 
     public SatelliteConstellation(String constellationName) {
         this.constellationName = constellationName;
@@ -15,7 +20,7 @@ public class SatelliteConstellation {
 
     public void addSatellite(Satellite satellite) {
         satellites.add(satellite);
-        System.out.println(satellite.name + " добавлен в группировку '" + constellationName + "'");
+        System.out.println(satellite.getName() + " добавлен в группировку '" + constellationName + "'");
     }
 
     public void executeAllMissions() {
@@ -24,7 +29,7 @@ public class SatelliteConstellation {
         }
     }
 
-    public List<Satellite> getSatellites() {
-        return satellites;
+    public boolean removeSatellite(String satelliteName) {
+        return satellites.removeIf(satellite -> satellite.getName().equals(satelliteName));
     }
 }
