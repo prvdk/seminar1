@@ -1,26 +1,27 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.ToString;
+
+@Getter
+@ToString(callSuper = true)
 public class ImagingSatellite extends Satellite {
 
-    private double resolution;
+    private final double resolution;
     private int photosTaken;
 
     public ImagingSatellite(String name, double batteryLevel, double resolution) {
-        super(name, batteryLevel);
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), resolution);
+    }
+
+    public ImagingSatellite(String name, EnergySystem energySystem, double resolution) {
+        super(name, energySystem);
         this.resolution = resolution;
         this.photosTaken = 0;
     }
 
-    public double getResolution() {
-        return resolution;
-    }
-
-    public int getPhotosTaken() {
-        return photosTaken;
-    }
-
     private void takePhoto() {
-        if (!isActive) {
+        if (!state.isActive()) {
             return;
         }
         photosTaken++;
@@ -29,24 +30,15 @@ public class ImagingSatellite extends Satellite {
 
     @Override
     public void performMission() {
-        if (!isActive) {
+        if (!state.isActive()) {
             System.out.println("🛑 " + name + ": Не может выполнить съемку - не активен");
             return;
         }
 
         System.out.println(name + ": Съемка территории с разрешением " + resolution + " м/пиксель");
         takePhoto();
-        consumeBattery(0.08);
+        energy.consume(0.08);
+        updateStateAfterEnergyConsumption();
     }
 
-    @Override
-    public String toString() {
-        return "ImagingSatellite{" +
-                "resolution=" + resolution +
-                ", photosTaken=" + photosTaken +
-                ", name='" + name + '\'' +
-                ", isActive=" + isActive +
-                ", batteryLevel=" + batteryLevel +
-                '}';
-    }
 }
