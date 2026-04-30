@@ -2,18 +2,22 @@ package org.example;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ConstellationService {
 
     private final ConstellationRepository constellationRepository;
 
+    @Transactional
     public SatelliteConstellation createAndSaveConstellation(String name) {
-        if (constellationRepository.existsByName(name)) {
+        if (constellationRepository.existsByConstellationName(name)) {
             System.out.println("Группировка уже существует: " + name);
             return getConstellationOrThrow(name);
         }
@@ -23,18 +27,23 @@ public class ConstellationService {
         return constellationRepository.save(constellation);
     }
 
+    @Transactional
     public void addSatelliteToConstellation(String constellationName, Satellite satellite) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         constellation.addSatellite(Objects.requireNonNull(satellite, "Satellite must not be null"));
+        constellationRepository.save(constellation);
         System.out.println("Добавлен спутник " + satellite.getName() + " в группировку " + constellationName);
     }
 
+    @Transactional
     public void executeConstellationMission(String constellationName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         printMissionHeader(constellationName);
         constellation.executeAllMissions();
+        constellationRepository.save(constellation);
     }
 
+    @Transactional
     public void executeSingleSatelliteMission(String constellationName, String satelliteName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         printMissionHeader(constellationName);
@@ -44,8 +53,10 @@ public class ConstellationService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Спутник не найден: " + satelliteName));
         satellite.performMission();
+        constellationRepository.save(constellation);
     }
 
+    @Transactional
     public void activateAllSatellites(String constellationName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         printActivationHeader(constellationName);
@@ -53,6 +64,7 @@ public class ConstellationService {
         for (Satellite satellite : constellation.getSatellites()) {
             printActivationResult(satellite);
         }
+        constellationRepository.save(constellation);
     }
 
     public SatelliteConstellation showConstellationStatus(String constellationName) {
@@ -70,20 +82,25 @@ public class ConstellationService {
     }
 
     public Map<String, SatelliteConstellation> getAllConstellations() {
-        return constellationRepository.getAllConstellations();
+        return constellationRepository.findAll().stream()
+                .collect(LinkedHashMap::new,
+                        (map, constellation) -> map.put(constellation.getConstellationName(), constellation),
+                        LinkedHashMap::putAll);
     }
 
+    @Transactional
     public void decommissionSatellite(String constellationName, String satelliteName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         boolean removed = constellation.removeSatellite(satelliteName);
         if (!removed) {
             throw new IllegalArgumentException("Спутник не найден: " + satelliteName);
         }
+        constellationRepository.save(constellation);
         System.out.println("Спутник " + satelliteName + " выведен из эксплуатации");
     }
 
     private SatelliteConstellation getConstellationOrThrow(String name) {
-        return constellationRepository.findByName(name)
+        return constellationRepository.findByConstellationName(name)
                 .orElseThrow(() -> new IllegalArgumentException("Группировка не найдена: " + name));
     }
 

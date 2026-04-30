@@ -1,13 +1,28 @@
 package org.example;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "communication_satellites")
+@PrimaryKeyJoinColumn(name = "satellite_id")
+@DiscriminatorValue("COMMUNICATION")
 @Getter
+@Setter
+@NoArgsConstructor
 @ToString(callSuper = true)
 public class CommunicationSatellite extends Satellite {
 
-    private final double bandwidth;
+    @Column(name = "bandwidth", nullable = false)
+    private double bandwidth;
 
     public CommunicationSatellite(String name, double batteryLevel, double bandwidth) {
         this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), bandwidth);

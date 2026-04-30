@@ -1,13 +1,30 @@
 package org.example;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "imaging_satellites")
+@PrimaryKeyJoinColumn(name = "satellite_id")
+@DiscriminatorValue("IMAGE")
 @Getter
+@Setter
+@NoArgsConstructor
 @ToString(callSuper = true)
 public class ImagingSatellite extends Satellite {
 
-    private final double resolution;
+    @Column(name = "resolution", nullable = false)
+    private double resolution;
+
+    @Column(name = "photos_taken", nullable = false)
     private int photosTaken;
 
     public ImagingSatellite(String name, double batteryLevel, double resolution) {

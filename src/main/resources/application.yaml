@@ -1,2 +1,16 @@
 server:
   port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/space_center}
+    username: ${SPRING_DATASOURCE_USERNAME:space_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:space_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  sql:
+    init:
+      mode: always

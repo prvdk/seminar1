@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DisplayName("Integration tests for SpaceOperationCenterService facade")
 @SpringBootTest
 @ExtendWith(OutputCaptureExtension.class)
+@Transactional
 class SpaceOperationCenterServiceIntegrationTest {
 
     private static final String PRIMARY_CONSTELLATION_NAME = "Service-Integration-Orbit";
@@ -45,7 +47,7 @@ class SpaceOperationCenterServiceIntegrationTest {
 
     @BeforeEach
     void cleanRepository() {
-        constellationRepository.getAllConstellations().clear();
+        constellationRepository.deleteAll();
     }
 
     @Test
@@ -81,7 +83,9 @@ class SpaceOperationCenterServiceIntegrationTest {
         ));
         operationCenterService.activateConstellation(PRIMARY_CONSTELLATION_NAME);
 
-        SatelliteConstellation constellation = constellationRepository.findByName(PRIMARY_CONSTELLATION_NAME).orElseThrow();
+        SatelliteConstellation constellation = constellationRepository
+                .findByConstellationName(PRIMARY_CONSTELLATION_NAME)
+                .orElseThrow();
         CommunicationSatellite communicationSatellite = assertInstanceOf(
                 CommunicationSatellite.class,
                 constellation.getSatellites().get(0)
@@ -121,7 +125,9 @@ class SpaceOperationCenterServiceIntegrationTest {
         ));
         operationCenterService.activateConstellation(PRIMARY_CONSTELLATION_NAME);
 
-        SatelliteConstellation constellation = constellationRepository.findByName(PRIMARY_CONSTELLATION_NAME).orElseThrow();
+        SatelliteConstellation constellation = constellationRepository
+                .findByConstellationName(PRIMARY_CONSTELLATION_NAME)
+                .orElseThrow();
 
         CommunicationSatellite highBatterySatellite = assertInstanceOf(
                 CommunicationSatellite.class,
@@ -148,7 +154,7 @@ class SpaceOperationCenterServiceIntegrationTest {
                 List.of()
         ));
 
-        assertEquals(firstCreation, secondCreation);
-        assertEquals(1, constellationRepository.getAllConstellations().size());
+        assertEquals(firstCreation.getConstellationName(), secondCreation.getConstellationName());
+        assertEquals(1, constellationRepository.count());
     }
 }

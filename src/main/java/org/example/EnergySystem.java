@@ -1,9 +1,22 @@
 package org.example;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "energy_systems")
 @Getter
+@Setter
+@NoArgsConstructor
 @ToString
 public class EnergySystem {
 
@@ -12,9 +25,20 @@ public class EnergySystem {
     private static final double DEFAULT_MAX_BATTERY = 1.0;
     private static final double DEFAULT_LOW_BATTERY_THRESHOLD = 0.2;
 
-    private final double lowBatteryThreshold;
-    private final double maxBattery;
-    private final double minBattery;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "low_battery_threshold", nullable = false)
+    private double lowBatteryThreshold;
+
+    @Column(name = "max_battery", nullable = false)
+    private double maxBattery;
+
+    @Column(name = "min_battery", nullable = false)
+    private double minBattery;
+
+    @Column(name = "battery_level", nullable = false)
     private double batteryLevel;
 
     private EnergySystem(Builder builder) {

@@ -1,39 +1,14 @@
 package org.example;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 
-@Repository
-public class ConstellationRepository {
+public interface ConstellationRepository extends JpaRepository<SatelliteConstellation, Long> {
 
-    private final Map<String, SatelliteConstellation> constellations;
+    Optional<SatelliteConstellation> findByConstellationName(String constellationName);
 
-    public ConstellationRepository() {
-        this.constellations = new LinkedHashMap<>();
-    }
+    boolean existsByConstellationName(String constellationName);
 
-    public SatelliteConstellation save(SatelliteConstellation constellation) {
-        constellations.put(constellation.getConstellationName(), constellation);
-        System.out.println("Сохранена группировка: " + constellation.getConstellationName());
-        return constellation;
-    }
-
-    public Optional<SatelliteConstellation> findByName(String name) {
-        return Optional.ofNullable(constellations.get(name));
-    }
-
-    public Map<String, SatelliteConstellation> getAllConstellations() {
-        return constellations;
-    }
-
-    public boolean existsByName(String name) {
-        return constellations.containsKey(name);
-    }
-
-    public void deleteByName(String name) {
-        constellations.remove(name);
-    }
+    void deleteByConstellationName(String constellationName);
 }

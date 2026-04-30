@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Integration tests for ConstellationRepository with Spring context")
 @SpringBootTest
+@Transactional
 class ConstellationRepositoryIntegrationTest {
 
     private static final String INTEGRATION_CONSTELLATION_NAME = "Integration-Orbit";
@@ -50,7 +52,7 @@ class ConstellationRepositoryIntegrationTest {
 
     @BeforeEach
     void cleanRepository() {
-        constellationRepository.getAllConstellations().clear();
+        constellationRepository.deleteAll();
     }
 
     @Test
@@ -67,7 +69,7 @@ class ConstellationRepositoryIntegrationTest {
                 IMAGING_RESOLUTION);
 
         SatelliteConstellation createdConstellation = constellationRepository
-                .findByName(INTEGRATION_CONSTELLATION_NAME)
+                .findByConstellationName(INTEGRATION_CONSTELLATION_NAME)
                 .orElseThrow();
         assertNotNull(createdConstellation);
         assertEquals(0, createdConstellation.getSatellites().size());
@@ -87,9 +89,21 @@ class ConstellationRepositoryIntegrationTest {
 
         constellationService.executeConstellationMission(INTEGRATION_CONSTELLATION_NAME);
 
-        assertTrue(communicationSatellite.getBatteryLevel() < communicationBatteryBeforeMission);
-        assertTrue(imagingSatellite.getBatteryLevel() < imagingBatteryBeforeMission);
-        assertEquals(photosBeforeMission + 1, imagingSatellite.getPhotosTaken());
+        SatelliteConstellation afterMission = constellationRepository
+                .findByConstellationName(INTEGRATION_CONSTELLATION_NAME)
+                .orElseThrow();
+        CommunicationSatellite updatedCommunication = (CommunicationSatellite) afterMission.getSatellites().stream()
+                .filter(satellite -> satellite.getName().equals(COMMUNICATION_SATELLITE_NAME))
+                .findFirst()
+                .orElseThrow();
+        ImagingSatellite updatedImaging = (ImagingSatellite) afterMission.getSatellites().stream()
+                .filter(satellite -> satellite.getName().equals(IMAGING_SATELLITE_NAME))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(updatedCommunication.getBatteryLevel() < communicationBatteryBeforeMission);
+        assertTrue(updatedImaging.getBatteryLevel() < imagingBatteryBeforeMission);
+        assertEquals(photosBeforeMission + 1, updatedImaging.getPhotosTaken());
     }
 
     @Test
@@ -117,7 +131,7 @@ class ConstellationRepositoryIntegrationTest {
         SatelliteConstellation secondCreation = constellationService.createAndSaveConstellation(INTEGRATION_CONSTELLATION_NAME);
         Map<String, SatelliteConstellation> allConstellations = constellationService.getAllConstellations();
 
-        assertEquals(firstCreation, secondCreation);
+        assertEquals(firstCreation.getConstellationName(), secondCreation.getConstellationName());
         assertEquals(1, allConstellations.size());
         assertTrue(allConstellations.containsKey(INTEGRATION_CONSTELLATION_NAME));
     }
