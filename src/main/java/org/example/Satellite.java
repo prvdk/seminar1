@@ -49,6 +49,12 @@ public abstract class Satellite {
     @Column(name = "name", nullable = false)
     protected String name;
 
+    @Column(name = "inside_temperature")
+    protected Double insideTemperature;
+
+    @Column(name = "outside_temperature")
+    protected Double outsideTemperature;
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "state_id", nullable = false)
     protected SatelliteState state;

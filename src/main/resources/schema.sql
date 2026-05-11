@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS satellites (
     id BIGSERIAL PRIMARY KEY,
     satellite_type VARCHAR(64) NOT NULL,
     name VARCHAR(255) NOT NULL,
+    inside_temperature DOUBLE PRECISION,
+    outside_temperature DOUBLE PRECISION,
     state_id BIGINT NOT NULL UNIQUE,
     energy_system_id BIGINT NOT NULL UNIQUE,
     constellation_id BIGINT,

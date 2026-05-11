@@ -14,3 +14,9 @@ spring:
   sql:
     init:
       mode: always
+
+grpc:
+  client:
+    telemetry-service:
+      address: ${TELEMETRY_GRPC_ADDRESS:static://localhost:9091}
+      negotiationType: PLAINTEXT
