@@ -1,26 +1,44 @@
 package org.example;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "imaging_satellites")
+@PrimaryKeyJoinColumn(name = "satellite_id")
+@DiscriminatorValue("IMAGE")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
 public class ImagingSatellite extends Satellite {
 
+    @Column(name = "resolution", nullable = false)
     private double resolution;
+
+    @Column(name = "photos_taken", nullable = false)
     private int photosTaken;
 
     public ImagingSatellite(String name, double batteryLevel, double resolution) {
-        super(name, batteryLevel);
+        this(name, EnergySystem.builder().batteryLevel(batteryLevel).build(), resolution);
+    }
+
+    public ImagingSatellite(String name, EnergySystem energySystem, double resolution) {
+        super(name, energySystem);
         this.resolution = resolution;
         this.photosTaken = 0;
     }
 
-    public double getResolution() {
-        return resolution;
-    }
-
-    public int getPhotosTaken() {
-        return photosTaken;
-    }
-
     private void takePhoto() {
-        if (!isActive) {
+        if (!state.isActive()) {
             return;
         }
         photosTaken++;
@@ -29,24 +47,15 @@ public class ImagingSatellite extends Satellite {
 
     @Override
     public void performMission() {
-        if (!isActive) {
+        if (!state.isActive()) {
             System.out.println("🛑 " + name + ": Не может выполнить съемку - не активен");
             return;
         }
 
         System.out.println(name + ": Съемка территории с разрешением " + resolution + " м/пиксель");
         takePhoto();
-        consumeBattery(0.08);
+        energy.consume(0.08);
+        updateStateAfterEnergyConsumption();
     }
 
-    @Override
-    public String toString() {
-        return "ImagingSatellite{" +
-                "resolution=" + resolution +
-                ", photosTaken=" + photosTaken +
-                ", name='" + name + '\'' +
-                ", isActive=" + isActive +
-                ", batteryLevel=" + batteryLevel +
-                '}';
-    }
 }
