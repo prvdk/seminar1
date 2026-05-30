@@ -17,6 +17,25 @@ services:
     networks:
       - space-net
 
+  kafka:
+    image: bitnami/kafka:3.9
+    container_name: kafka
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    ports:
+      - "29092:29092"
+    networks:
+      - space-net
+
   server:
     build:
       context: .
@@ -28,10 +47,13 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/space_center
       SPRING_DATASOURCE_USERNAME: space_user
       SPRING_DATASOURCE_PASSWORD: space_password
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       TELEMETRY_GRPC_ADDRESS: static://telemetry-service:9091
     depends_on:
       postgres:
         condition: service_healthy
+      kafka:
+        condition: service_started
       telemetry-service:
         condition: service_started
     ports:
@@ -54,6 +76,10 @@ services:
     environment:
       SERVER_PORT: 8082
       GRPC_SERVER_PORT: 9091
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      kafka:
+        condition: service_started
     ports:
       - "9091:9091"
     networks:

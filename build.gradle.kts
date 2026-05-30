@@ -29,6 +29,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.kafka:spring-kafka")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
     implementation(enforcedPlatform("io.grpc:grpc-bom:1.81.0"))
     implementation("io.grpc:grpc-stub:1.81.0")

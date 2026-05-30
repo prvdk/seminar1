@@ -20,6 +20,8 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+    implementation("org.springframework.kafka:spring-kafka")
     implementation("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
     implementation(enforcedPlatform("io.grpc:grpc-bom:1.81.0"))
     implementation("io.grpc:grpc-protobuf:1.81.0")

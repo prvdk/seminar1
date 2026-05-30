@@ -2,6 +2,13 @@ server:
   port: ${SERVER_PORT:8080}
 
 spring:
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/space_center}
     username: ${SPRING_DATASOURCE_USERNAME:space_user}
@@ -20,3 +27,8 @@ grpc:
     telemetry-service:
       address: ${TELEMETRY_GRPC_ADDRESS:static://localhost:9091}
       negotiationType: PLAINTEXT
+
+app:
+  kafka:
+    topics:
+      satellite-events: ${SATELLITE_EVENTS_TOPIC:satellite-events}

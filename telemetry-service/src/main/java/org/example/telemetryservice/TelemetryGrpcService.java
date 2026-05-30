@@ -3,6 +3,7 @@ package org.example.telemetryservice;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.example.telemetryservice.kafka.SatelliteRegistry;
 import org.example.telemetry.TelemetryRequest;
 import org.example.telemetry.TelemetryServiceGrpc;
 import org.example.telemetry.TelemetryUpdate;
@@ -20,11 +21,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TelemetryGrpcService extends TelemetryServiceGrpc.TelemetryServiceImplBase {
 
     private final ScheduledExecutorService executorService;
+    private final SatelliteRegistry satelliteRegistry;
     private final Random random = new Random();
-    private final List<String> satellites = List.of("Sat-1", "Sat-2", "Sat-3");
 
-    public TelemetryGrpcService(ScheduledExecutorService executorService) {
+    public TelemetryGrpcService(ScheduledExecutorService executorService, SatelliteRegistry satelliteRegistry) {
         this.executorService = executorService;
+        this.satelliteRegistry = satelliteRegistry;
     }
 
     @Override
@@ -42,7 +44,15 @@ public class TelemetryGrpcService extends TelemetryServiceGrpc.TelemetryServiceI
         }
 
         scheduledFuture.set(executorService.scheduleAtFixedRate(() -> {
-            String satelliteName = satellites.get(satelliteIndex.getAndUpdate(value -> (value + 1) % satellites.size()));
+            List<String> satellites = satelliteRegistry.names();
+            if (satellites.isEmpty()) {
+                return;
+            }
+            int currentIndex = Math.floorMod(
+                    satelliteIndex.getAndUpdate(value -> (value + 1) % satellites.size()),
+                    satellites.size()
+            );
+            String satelliteName = satellites.get(currentIndex);
             TelemetryUpdate update = TelemetryUpdate.newBuilder()
                     .setSatelliteName(satelliteName)
                     .setInsideTemperature(randomTemperature(-5.0, 35.0))
