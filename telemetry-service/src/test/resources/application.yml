@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:telemetry-testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: telemetry-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      auto-startup: false
+
+app:
+  kafka:
+    topics:
+      satellite-events: satellite-events

@@ -33,6 +33,12 @@ services:
       ALLOW_PLAINTEXT_LISTENER: "yes"
     ports:
       - "29092:29092"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
       - space-net
 
@@ -53,9 +59,9 @@ services:
       postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       telemetry-service:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "8080:8080"
     healthcheck:
@@ -77,11 +83,22 @@ services:
       SERVER_PORT: 8082
       GRPC_SERVER_PORT: 9091
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/space_center
+      SPRING_DATASOURCE_USERNAME: space_user
+      SPRING_DATASOURCE_PASSWORD: space_password
     depends_on:
+      postgres:
+        condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     ports:
       - "9091:9091"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9091 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
       - space-net
 
@@ -97,6 +114,7 @@ services:
     environment:
       SERVER_PORT: 8081
       SERVER_URL: http://server:8080/api
+      SPRING_APPLICATION_JSON: '{"app":{"space-center-service":{"missions":[]}}}'
     ports:
       - "8081:8081"
     networks:

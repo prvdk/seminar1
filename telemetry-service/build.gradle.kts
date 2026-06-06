@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-json")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("net.devh:grpc-server-spring-boot-starter:3.1.0.RELEASE")
@@ -28,8 +29,10 @@ dependencies {
     implementation("io.grpc:grpc-stub:1.81.0")
     implementation("com.google.protobuf:protobuf-java:4.34.1")
     compileOnly("org.apache.tomcat:annotations-api:6.0.53")
+    runtimeOnly("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 protobuf {

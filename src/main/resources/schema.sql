@@ -44,6 +44,16 @@ CREATE TABLE IF NOT EXISTS imaging_satellites (
     CONSTRAINT fk_imaging_satellite FOREIGN KEY (satellite_id) REFERENCES satellites(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS outbox (
+    id UUID PRIMARY KEY,
+    aggregate_id BIGINT NOT NULL,
+    event_type VARCHAR(32) NOT NULL,
+    payload TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    status VARCHAR(32) NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_constellation_name ON satellite_constellations(constellation_name);
 CREATE INDEX IF NOT EXISTS idx_satellite_name ON satellites(name);
 CREATE INDEX IF NOT EXISTS idx_satellite_constellation_id ON satellites(constellation_id);
+CREATE INDEX IF NOT EXISTS idx_outbox_status_created_at ON outbox(status, created_at);

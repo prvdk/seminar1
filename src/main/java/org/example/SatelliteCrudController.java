@@ -1,7 +1,6 @@
 package org.example;
 
 import lombok.RequiredArgsConstructor;
-import org.example.kafka.SatelliteEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +19,11 @@ import java.util.List;
 public class SatelliteCrudController {
 
     private final SatelliteRepository satelliteRepository;
-    private final SatelliteEventPublisher satelliteEventPublisher;
+    private final SatelliteCommandService satelliteCommandService;
 
     @PostMapping
     public ResponseEntity<Satellite> create(@RequestBody Satellite satellite) {
-        Satellite savedSatellite = satelliteRepository.save(satellite);
-        satelliteEventPublisher.publishCreated(savedSatellite);
-        return ResponseEntity.ok(savedSatellite);
+        return ResponseEntity.ok(satelliteCommandService.create(satellite));
     }
 
     @GetMapping
@@ -53,12 +50,9 @@ public class SatelliteCrudController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        return satelliteRepository.findById(id)
-                .map(satellite -> {
-                    satelliteRepository.delete(satellite);
-                    satelliteEventPublisher.publishDeleted(satellite);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        if (!satelliteCommandService.delete(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
     }
 }
