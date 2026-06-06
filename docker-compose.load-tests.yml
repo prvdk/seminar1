@@ -1,0 +1,15 @@
+services:
+  k6:
+    image: grafana/k6:latest
+    container_name: space-load-tests
+    working_dir: /scripts
+    environment:
+      BASE_URL: http://host.docker.internal:8080
+      VUS: ${VUS:-20}
+      K6_WEB_DASHBOARD: "true"
+      K6_WEB_DASHBOARD_EXPORT: /scripts/load-tests/reports/k6-report.html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - .:/scripts
+    command: run /scripts/load-tests/space-operation-scenario.js

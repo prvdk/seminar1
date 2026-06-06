@@ -17,7 +17,7 @@ Backend-сервис для управления спутниковыми гру
 ```bash
 git clone https://github.com/prvdk/seminar1.git
 cd seminar1
-git checkout seminar-11
+git checkout load-testing
 docker compose up --build
 ```
 
@@ -32,6 +32,10 @@ http://localhost:8080
 ```bash
 curl http://localhost:8080/api/overview
 ```
+
+## Нагрузочное тестирование
+
+Файлы и инструкция по нагрузочному тестированию находятся в `load-tests/README.md`.
 
 ## Основные API
 
