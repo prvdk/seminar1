@@ -20,6 +20,7 @@ public class SatelliteCrudController {
 
     private final SatelliteRepository satelliteRepository;
     private final SatelliteCommandService satelliteCommandService;
+    private final SatelliteCrudService satelliteCrudService;
 
     @PostMapping
     public ResponseEntity<Satellite> create(@RequestBody Satellite satellite) {
@@ -28,12 +29,12 @@ public class SatelliteCrudController {
 
     @GetMapping
     public ResponseEntity<List<Satellite>> findAll() {
-        return ResponseEntity.ok(satelliteRepository.findAll());
+        return ResponseEntity.ok(satelliteCrudService.getAllSatellites());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Satellite> findById(@PathVariable Long id) {
-        return satelliteRepository.findById(id)
+        return satelliteCrudService.getSatelliteById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -45,7 +46,7 @@ public class SatelliteCrudController {
         }
 
         satellite.setId(id);
-        return ResponseEntity.ok(satelliteRepository.save(satellite));
+        return ResponseEntity.ok(satelliteCrudService.updateSatellite(id, satellite));
     }
 
     @DeleteMapping("/{id}")

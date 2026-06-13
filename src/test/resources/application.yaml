@@ -1,4 +1,6 @@
 spring:
+  cache:
+    type: simple
   kafka:
     bootstrap-servers: localhost:29092
     producer:

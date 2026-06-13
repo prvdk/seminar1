@@ -12,13 +12,17 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "energy_systems")
 @Getter
 @Setter
 @NoArgsConstructor
 @ToString
-public class EnergySystem {
+public class EnergySystem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final double DEFAULT_BATTERY_LEVEL = 1.0;
     private static final double DEFAULT_MIN_BATTERY = 0.0;

@@ -17,6 +17,20 @@ services:
     networks:
       - space-net
 
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - space-net
+
   kafka:
     image: bitnamilegacy/kafka:3.9
     container_name: kafka
@@ -53,12 +67,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/space_center
       SPRING_DATASOURCE_USERNAME: space_user
       SPRING_DATASOURCE_PASSWORD: space_password
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       TELEMETRY_GRPC_ADDRESS: static://telemetry-service:9091
     depends_on:
       postgres:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       telemetry-service:
         condition: service_healthy

@@ -2,6 +2,15 @@ server:
   port: ${SERVER_PORT:8080}
 
 spring:
+  cache:
+    type: redis
+    redis:
+      cache-null-values: false
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: ${SPRING_DATA_REDIS_TIMEOUT:2s}
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
@@ -32,3 +41,12 @@ app:
   kafka:
     topics:
       satellite-events: ${SATELLITE_EVENTS_TOPIC:satellite-events}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,caches
+  metrics:
+    enable:
+      cache: true

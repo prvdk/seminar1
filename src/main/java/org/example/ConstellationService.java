@@ -1,6 +1,9 @@
 package org.example;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,10 @@ public class ConstellationService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "constellation", key = "#constellationName"),
+            @CacheEvict(value = "satellites", allEntries = true)
+    })
     public void addSatelliteToConstellation(String constellationName, Satellite satellite) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         constellation.addSatellite(Objects.requireNonNull(satellite, "Satellite must not be null"));
@@ -67,6 +74,7 @@ public class ConstellationService {
         constellationRepository.save(constellation);
     }
 
+    @Cacheable(value = "constellation", key = "#constellationName")
     public SatelliteConstellation showConstellationStatus(String constellationName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         System.out.println("\n=== СТАТУС ГРУППИРОВКИ: " + constellationName + " ===");
@@ -81,6 +89,11 @@ public class ConstellationService {
         return getConstellationOrThrow(name);
     }
 
+    @Cacheable(value = "constellation", key = "#name")
+    public SatelliteConstellation getConstellationByName(String name) {
+        return getConstellationOrThrow(name);
+    }
+
     public Map<String, SatelliteConstellation> getAllConstellations() {
         return constellationRepository.findAll().stream()
                 .collect(LinkedHashMap::new,
@@ -89,6 +102,10 @@ public class ConstellationService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "constellation", key = "#constellationName"),
+            @CacheEvict(value = "satellites", allEntries = true)
+    })
     public void decommissionSatellite(String constellationName, String satelliteName) {
         SatelliteConstellation constellation = getConstellationOrThrow(constellationName);
         boolean removed = constellation.removeSatellite(satelliteName);

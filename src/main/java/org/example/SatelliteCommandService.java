@@ -3,6 +3,8 @@ package org.example;
 import lombok.RequiredArgsConstructor;
 import org.example.outbox.OutboxMessageFactory;
 import org.example.outbox.OutboxMessageRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ public class SatelliteCommandService {
     private final OutboxMessageFactory outboxMessageFactory;
 
     @Transactional
+    @CacheEvict(value = "satellites", allEntries = true)
     public Satellite create(Satellite satellite) {
         Satellite savedSatellite = satelliteRepository.save(satellite);
         outboxMessageRepository.save(outboxMessageFactory.created(savedSatellite));
@@ -24,6 +27,10 @@ public class SatelliteCommandService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "satellite", key = "#id"),
+            @CacheEvict(value = "satellites", allEntries = true)
+    })
     public boolean delete(Long id) {
         Optional<Satellite> satellite = satelliteRepository.findById(id);
         if (satellite.isEmpty()) {

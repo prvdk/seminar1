@@ -23,6 +23,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
@@ -38,7 +39,9 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @ToString
-public abstract class Satellite {
+public abstract class Satellite implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private static final double MIN_ACTIVATION_BATTERY = 0.2;
 
